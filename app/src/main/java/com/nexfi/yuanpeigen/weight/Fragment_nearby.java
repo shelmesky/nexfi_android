@@ -21,12 +21,10 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
 import com.nexfi.yuanpeigen.activity.ChatActivity;
 import com.nexfi.yuanpeigen.activity.ChatRoomActivity;
 import com.nexfi.yuanpeigen.bean.ChatMessage;
-import com.nexfi.yuanpeigen.bean.ChatUser;
 import com.nexfi.yuanpeigen.dao.BuddyDao;
 import com.nexfi.yuanpeigen.nexfi.R;
 import com.nexfi.yuanpeigen.util.SocketUtils;
@@ -81,7 +79,6 @@ public class Fragment_nearby extends Fragment {
                 msg.account = localIp;
                 msg.nick = username;
                 msg.type = "online";
-//                String xml = user.toXml();
                 XStream x = new XStream();
                 x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
                 String xml = x.toXML(msg);
@@ -139,37 +136,31 @@ public class Fragment_nearby extends Fragment {
                 @Override
                 public void run() {
                     super.run();
-                    BuddyDao buddyDao = new BuddyDao(Fragment_nearby.this.getActivity());
-                    mDataArraysNew = buddyDao.findAll(localIp);//查找所有用户
 
-                    //TODO 2016/4/7 14:50
+                    groupList.clear();
                     childListNew.clear();
                     childListOnline.clear();
                     childListOffline.clear();
+                    /**
+                     *  Group数据
+                     * */
+                    groupList.add("在线好友");
+                    groupList.add("离线好友");
+                    groupList.add("附近的人");
+
+                    BuddyDao buddyDao = new BuddyDao(Fragment_nearby.this.getActivity());
+                    mDataArraysNew = buddyDao.findAll(localIp);//查找所有用户
+
                     for (int index = 0; index < groupList.size(); ++index) {
                         childListNew.add(mDataArraysNew);
                         childListOnline.add(mDataArraysOnline);
                         childListOffline.add(mDataArraysOffline);
                     }
                     usrListAdapter = new UserList(Fragment_nearby.this.getActivity(), mDataArraysNew, mDataArraysOnline, mDataArraysOffline, groupList, childListNew, childListOnline, childListOffline);
-//                    Log.e("TAG", "Myobserve-----------------------childListNew.size()-----------------------------------" + childListNew.size());
-//                    for (ChatMessage msg:mDataArraysNew) {
-//                        Log.e("TAG",msg.toString()+"-------------------mDataArraysNew---------------========-");
-//                    }
                     Fragment_nearby.this.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-//                            Log.e("TAG", usrListAdapter + "==============setAdapter-----------------------------------------onChange-----------");
-//                            userList.setAdapter(usrListAdapter);
-//                            usrListAdapter.notifyDataSetChanged();
-//                            Log.e("TAG", "onChange-----------------------------------------setAdapter-----------");
-//                            if(null!=usrListAdapter){
-//                                usrListAdapter.notifyDataSetChanged();
-//                            }
-
                             userList.setAdapter(usrListAdapter);
-//                            userList.expandGroup(2);
-                            usrListAdapter.notifyDataSetInvalidated();
                         }
                     });
                 }
@@ -285,6 +276,7 @@ public class Fragment_nearby extends Fragment {
             childListOnline.add(mDataArraysOnline);
             childListOffline.add(mDataArraysOffline);
         }
+
         usrListAdapter = new UserList(this.getActivity(), mDataArraysNew, mDataArraysOnline, mDataArraysOffline, groupList, childListNew, childListOnline, childListOffline);
         userList.setAdapter(usrListAdapter);
     }
