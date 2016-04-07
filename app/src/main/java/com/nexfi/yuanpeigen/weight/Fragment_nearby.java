@@ -85,7 +85,7 @@ public class Fragment_nearby extends Fragment {
                 XStream x = new XStream();
                 x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
                 String xml = x.toXML(msg);
-                SocketUtils.startSendRoomThread(xml);
+                SocketUtils.startSendRoomThread(xml);//发送进入聊天室通知
                 //同时进入聊天室
                 Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
                 startActivity(intent);

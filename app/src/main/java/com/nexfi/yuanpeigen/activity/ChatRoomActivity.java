@@ -87,10 +87,10 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
                 //离线消息
                 ChatMessage chatMessage= (ChatMessage) msg.obj;
                 BuddyDao dao=new BuddyDao(getApplicationContext());
+                //此时chatMessage.type是offline
 //                if(!(dao.findSame(chatMessage.account,chatMessage.type))){
 //                    dao.addRoomMsg(chatMessage);
-//                    count++;
-//                    Log.e("TAG",count+"---------------------------------------------------------在线人数");
+//                    count--;
 //                }
             }
         }
@@ -163,7 +163,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
             SocketUtils.sendBroadcastRoom(xml);//发送群聊消息
 
             //重复发
-//            initReUDP(handler, xml);
+            initReUDP(handler, xml,chatMessage.uuid);
 
             BuddyDao buddyDao = new BuddyDao(ChatRoomActivity.this);
             buddyDao.addRoomMsg(chatMessage);
@@ -175,7 +175,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
     //TODO 2016/4/6
     //接收单播
-    public void initReUDP(final Handler handler,final String xml) {
+    public void initReUDP(final Handler handler,final String xml,final String uuid) {
 
         new Thread() {
             public void run() {
@@ -199,13 +199,14 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
                             x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
                             ChatMessage fromXml= (ChatMessage)x.fromXML(new String(dp.getData()));
                             Log.e("TAG", fromXml.content + "--------------------------------fromXml.content---------XStream------------------------");
-                            if(fromXml.content.equals("response")){
-                                response_count++;
+                            //确定消息的唯一性
+                            if(!(uuid.equals(fromXml.uuid)) && fromXml.content.equals("response")){
+                                response_count++;//反馈的个数
                                 Log.e("TAG",response_count+"-----------------------------------------response_count------------------------");
                                 BuddyDao dao=new BuddyDao(getApplicationContext());
                                 List<ChatMessage> mList=dao.findRoomByType("online");//在线人数
                                 Log.e("TAG",mList.size()+"=================================-----------mList.size()-------------------------------");
-                                if(mList.size()-1==response_count || sendTimes>=3){//在线人数等于反馈个数
+                                if(mList.size()==response_count || sendTimes>=3){//在线人数等于反馈个数
                                     break;
                                 }else{//如果有人没收到，就重新发一次多播
                                     SocketUtils.sendBroadcastRoom(xml);//发送群聊消息
