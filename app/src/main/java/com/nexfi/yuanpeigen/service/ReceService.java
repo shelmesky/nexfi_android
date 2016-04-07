@@ -50,7 +50,7 @@ public class ReceService extends Service {
                     DatagramSocket ds = new DatagramSocket(10000);//开始监视12345端口
                     DatagramPacket dp = new DatagramPacket(buf, buf.length, InetAddress.getByName("192.168.1.255"), 10000);//创建接收数据报的实例
                     while (true) {
-                        Log.e("TAG", "------while (true)---service");
+//                        Log.e("TAG", "------while (true)---service");
                         ds.receive(dp);//阻塞,直到收到数据报后将数据装入IP中
                         //转化
                         XStream x = new XStream();
@@ -95,19 +95,19 @@ public class ReceService extends Service {
                         XStream x = new XStream();
                         x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
                         ChatMessage fromXml= (ChatMessage) x.fromXML(xml_content);
-                        Log.e("TAG", fromXml.account + "---------------------上线了");
+//                        Log.e("TAG", fromXml.account + "---------------------上线了");
 
 
                         if ("online".equals(fromXml.type)) {
-                            Log.e("TAG",  "----------online-----------online"+fromXml.type);
+//                            Log.e("TAG",  "----------online-----------online"+fromXml.type);
                             if (!localIP.equals(fromXml.account)) {
-                                Log.e("TAG",  dao.find(fromXml.account)+"----------localIP-----------localIP"+fromXml.account);
+//                                Log.e("TAG",  dao.find(fromXml.account)+"----------localIP-----------localIP"+fromXml.account);
                                 if (!dao.find(fromXml.account)) {
-                                    Log.e("TAG",  "----------find----------find"+fromXml.account);
+//                                    Log.e("TAG",  "----------find----------find"+fromXml.account);
 //                                    dao.add(fromXml);
                                     dao.addP2PMsg(fromXml);
-                                    Log.e("TAG", "----------addP2PMsg----------addP2PMsg================================================"+fromXml.account);
-                                    System.out.println("---tianjia--------------------------------------------------------");
+//                                    Log.e("TAG", "----------addP2PMsg----------addP2PMsg================================================"+fromXml.account);
+//                                    System.out.println("---tianjia--------------------------------------------------------");
                                 }
                             }
 

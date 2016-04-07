@@ -45,7 +45,7 @@ import java.util.UUID;
  * Created by Mark on 2016/3/22.
  */
 public class ChatRoomActivity extends AppCompatActivity implements View.OnClickListener {
-    static MyApplication app=new MyApplication();
+    static MyApplication app = new MyApplication();
 
     private TextView textViewRoom;
     private RelativeLayout iv_backRoom;
@@ -64,7 +64,10 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
     private String rece_file_path = "";//接收端文件的保存路径
     private List<ChatMessage> mDataArrays = new ArrayList<ChatMessage>();
 
-    private int count=0;//在线人数
+    private int count = 0;//在线人数
+
+    // 多播群聊Socket
+    private DatagramSocket chatroom_response_socket = null;
 
     Handler handler = new Handler() {
         @Override
@@ -74,19 +77,19 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
                 if (msg.obj != null) {
                     receive((ChatMessage) msg.obj);
                 }
-            }else if(msg.what==2){
+            } else if (msg.what == 2) {
                 //上线消息，可以计算在线人数
-                ChatMessage chatMessage= (ChatMessage) msg.obj;
-                BuddyDao dao=new BuddyDao(getApplicationContext());
-                if(!(dao.findSame(chatMessage.account,chatMessage.type))){
+                ChatMessage chatMessage = (ChatMessage) msg.obj;
+                BuddyDao dao = new BuddyDao(getApplicationContext());
+                if (!(dao.findSame(chatMessage.account, chatMessage.type))) {
                     dao.addRoomMsg(chatMessage);
                     count++;
-                    Log.e("TAG",count+"---------------------------------------------------------在线人数");
+//                    Log.e("TAG", count + "---------------------------------------------------------在线人数");
                 }
-            }else if(msg.what==3){
+            } else if (msg.what == 3) {
                 //离线消息
-                ChatMessage chatMessage= (ChatMessage) msg.obj;
-                BuddyDao dao=new BuddyDao(getApplicationContext());
+                ChatMessage chatMessage = (ChatMessage) msg.obj;
+                BuddyDao dao = new BuddyDao(getApplicationContext());
                 //此时chatMessage.type是offline
 //                if(!(dao.findSame(chatMessage.account,chatMessage.type))){
 //                    dao.addRoomMsg(chatMessage);
@@ -102,8 +105,8 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.activity_chat_room);
         SharedPreferences preferences2 = getSharedPreferences("username", Context.MODE_PRIVATE);
         username = preferences2.getString("userName", null);
-        localIP=SocketUtils.getLocalIP(getApplicationContext());
-        SocketUtils.initReceMul(handler,localIP);
+        localIP = SocketUtils.getLocalIP(getApplicationContext());
+        SocketUtils.initReceMul(handler, localIP);
         initView();
         setOnClickListener();
         setAdapter();
@@ -118,11 +121,11 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
     private void receive(ChatMessage chatMessage) {
         //接收到多播后给予反馈
-        Log.e("TAG",chatMessage.fromIP+"======================chatMessage.fromIP-------");
+//        Log.e("TAG", chatMessage.fromIP + "======================chatMessage.fromIP-------");
 
         chatMessage.msgType = 1;
         BuddyDao buddyDao = new BuddyDao(ChatRoomActivity.this);
-        if(!buddyDao.findRoomMsgByUuid(chatMessage.uuid)){
+        if (!buddyDao.findRoomMsgByUuid(chatMessage.uuid)) {
             buddyDao.addRoomMsg(chatMessage);
             mDataArrays.add(chatMessage);
             chatRoomMessageAdapater.notifyDataSetChanged();
@@ -130,14 +133,15 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
         }
 
         //反馈的信息
-        ChatMessage user=new ChatMessage();
-        user.content="response";
-        user.fromIP=localIP;
+        ChatMessage user = new ChatMessage();
+        user.content = "response";
+        user.fromIP = localIP;
+        user.uuid = chatMessage.uuid;//
 
         XStream x = new XStream();
         x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
-        String xml =x.toXML(user);
-        sendUDP(chatMessage.fromIP,xml);
+        String xml = x.toXML(user);
+        sendResponseUDP(chatMessage.fromIP, xml);
 
     }
 
@@ -153,17 +157,17 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
             chatMessage.content = contString;
             chatMessage.fromNick = username;
             chatMessage.type = "chatRoom";
-            chatMessage.uuid= UUID.randomUUID().toString();
+            chatMessage.uuid = UUID.randomUUID().toString();
             XStream x = new XStream();
             x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
-            String xml =x.toXML(chatMessage);
-            if(app.DEBUG){
-                Log.e("TAG", "-聊天室发送------------------------" + xml);
+            String message = x.toXML(chatMessage);
+            if (app.DEBUG) {
+                Log.e("TAG", "-聊天室发送------------------------" + chatMessage.uuid + "===========message======" + message);
             }
-            SocketUtils.sendBroadcastRoom(xml);//发送群聊消息
+            SocketUtils.sendBroadcastRoom(message);//发送群聊消息
 
-            //重复发
-            initReUDP(handler, xml,chatMessage.uuid);
+            // 判断响应数量并重发
+            reSendUDPMultiBroadcast(handler, message, chatMessage.uuid);
 
             BuddyDao buddyDao = new BuddyDao(ChatRoomActivity.this);
             buddyDao.addRoomMsg(chatMessage);
@@ -173,48 +177,116 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    //TODO 2016/4/6
-    //接收单播
-    public void initReUDP(final Handler handler,final String xml,final String uuid) {
+    public DatagramSocket getChatroomResopnseSocket() {
+         /*创建多播Socket对象*/
+        try {
+            if (chatroom_response_socket == null) {
+                chatroom_response_socket = new DatagramSocket(null);
+
+                chatroom_response_socket.setReuseAddress(true);
+                chatroom_response_socket.bind(new InetSocketAddress(10001));
+            }
+            return chatroom_response_socket;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public int byteArrayToInt(byte[] bytes) {
+        int value = 0;
+        //由高位到低位
+        for (int i = 0; i < 4; i++) {
+            int shift = (4 - 1 - i) * 8;
+            value += (bytes[i] & 0x000000FF) << shift;//往高位游
+        }
+        return value;
+    }
+
+    //发送完成后，等待消息回应或重发
+    public void reSendUDPMultiBroadcast(final Handler handler, final String message, final String uuid) {
 
         new Thread() {
             public void run() {
+                Log.e("00000000000000", "has entry resend");
                 try {
-                    DatagramSocket mDataSocket=null;
-                    byte[] buf = new byte[1024];
-                    DatagramPacket dp = new DatagramPacket(buf, buf.length);
-                    if (mDataSocket == null) {
-                        mDataSocket = new DatagramSocket(null);
-                        mDataSocket.setReuseAddress(true);
-                        mDataSocket.bind(new InetSocketAddress(10001));
-                        Log.e("TAG", mDataSocket + "-----------------------------------------mDataSocket------------------------"+dp);
-                    }
-                    int response_count=0;//反馈次数
-                    int sendTimes=0;//重发次数
+                    // 等待当前所有群聊用户的消息确认
+                    DatagramSocket responseDataSocket = getChatroomResopnseSocket();
+
+                    int response_count = 0;// 当前反馈次数
+                    int sendTimes = 0;// 当前重发次数
+                    int needSendTimes = 2; // 需要重发的次数
+
                     while (true) {
-                        mDataSocket.receive(dp);
-                        if(null!=dp){
-                            Log.e("TAG", dp + "-----------------------------------------XStream------------------------");
+                        BuddyDao dao = new BuddyDao(getApplicationContext());
+                        List<ChatMessage> mUserList = dao.findRoomByType("online");
+                        int user_list_size = mUserList.size() - 1; //获取当前在线人数
+                        Log.e("TAG", "got --------------------------------------在线人数===" + user_list_size);
+                        int need_send_times = user_list_size; // 重发给N个人
+
+                        // 如重复的次数超过指定数量，或者已经接收到足够数量的响应，则退出循环
+                        if ((sendTimes >= needSendTimes) || response_count == user_list_size) {
+                            break;
+                        }
+
+                        while (true) {
+                            Log.e("111111111111111111", "start to got response");
+
+
+                            //二进制接收
+                            byte[] response_source = new byte[1024];
+                            DatagramPacket response_db = new DatagramPacket(response_source, 1024);
+                            try{
+                                chatroom_response_socket.setSoTimeout(2000);
+                                responseDataSocket.receive(response_db);
+                                chatroom_response_socket.setSoTimeout(0);
+                            }catch(Exception e){
+                                Log.e("TAG",e.toString());
+                            }
+
+                            byte[] response_raw_data = response_db.getData();
+                            byte[] response_size_data = new byte[4];
+                            System.arraycopy(response_raw_data, 0, response_size_data, 0, 4);
+                            int response_dataLength = byteArrayToInt(response_size_data);
+                            byte[] response_body_data = new byte[response_dataLength];
+                            System.arraycopy(response_raw_data, 4, response_body_data, 0, response_dataLength);
+
+                            String response_xml_content = new String(response_body_data);
+
+                            //解析XML
                             XStream x = new XStream();
                             x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
-                            ChatMessage fromXml= (ChatMessage)x.fromXML(new String(dp.getData()));
-                            Log.e("TAG", fromXml.content + "--------------------------------fromXml.content---------XStream------------------------");
-                            //确定消息的唯一性
-                            if(!(uuid.equals(fromXml.uuid)) && fromXml.content.equals("response")){
-                                response_count++;//反馈的个数
-                                Log.e("TAG",response_count+"-----------------------------------------response_count------------------------");
-                                BuddyDao dao=new BuddyDao(getApplicationContext());
-                                List<ChatMessage> mList=dao.findRoomByType("online");//在线人数
-                                Log.e("TAG",mList.size()+"=================================-----------mList.size()-------------------------------");
-                                if(mList.size()==response_count || sendTimes>=3){//在线人数等于反馈个数
-                                    break;
-                                }else{//如果有人没收到，就重新发一次多播
-                                    SocketUtils.sendBroadcastRoom(xml);//发送群聊消息
-                                    Log.e("TAG",sendTimes+"-----------------------------------------sendTimes------------------------");
-                                    sendTimes++;
+                            ChatMessage fromXml=null;
+                            try {
+                                fromXml = (ChatMessage) x.fromXML(response_xml_content);
+                            }catch (Exception e){
+                                Log.e("TAG","---fromXml--time_out================---"+e.toString());
+                                // 如果接收到的消息响应数量小于在线人数，则重发消息
+                                if (response_count < user_list_size) {
+                                    Log.e("RESEND:", "444444444444444444444444444response_count：" + response_count + "######user_list_size" + user_list_size);
+                                    SocketUtils.sendBroadcastRoom(message);
+                                    sendTimes += 1;
+                                    response_count=0;
                                 }
+                                break;
                             }
+                            Log.e("22222222222222222222222", "-----------------content" + fromXml.content + "----from_uuid=====" + fromXml.uuid + "-----origin_uudi" + uuid);
+                            //确定响应内容的正确性和唯一
+                            if ((uuid.equals(fromXml.uuid)) && fromXml.content.equals("response")) {
+                                response_count += 1;
+                                Log.e("3333333333333333333", "got response");
+                            }
+                            need_send_times -= 1;
+                            // 如已经重发给N个人，则退出本次重发的动作
+                            if (need_send_times == 0) {
+                                break;
+                            }
+
+
+
                         }
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -223,25 +295,41 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
         }.start();
     }
 
-    //发送UDP单播
-    public void sendUDP(final String destIP, final String msg) {
-        new Thread(){
+    //发送响应数据: UDP
+    public void sendResponseUDP(final String destIP, final String msg) {
+        new Thread() {
             @Override
             public void run() {
                 super.run();
                 try {
                     InetAddress target = InetAddress.getByName(destIP);
-                    DatagramSocket ds = new DatagramSocket();
-                    byte[] buf = msg.getBytes();
-                    DatagramPacket op = new DatagramPacket(buf, buf.length, target, 10001);
-                    ds.send(op);
-                    ds.close();
+                    DatagramSocket send_data_socket = new DatagramSocket();
+                    byte[] send_responseResource = new byte[1024];
+                    byte[] send_responseBuf = msg.getBytes();
+                    byte[] send_response_size_data = intToByteArray(send_responseBuf.length);
+                    System.arraycopy(send_response_size_data, 0, send_responseResource, 0, 4);
+                    System.arraycopy(send_responseBuf, 0, send_responseResource, 4, send_responseBuf.length);
+                    DatagramPacket send_data_packet = new DatagramPacket(send_responseResource, send_responseResource.length, target, 10001);
+                    Log.e("TAG", "------sendResponseUDP-------------------" + send_responseBuf.length);
+                    send_data_socket.send(send_data_packet);
+                    send_data_socket.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }.start();
     }
+
+    public byte[] intToByteArray(int i) {
+        byte[] result = new byte[4];
+        //由高位到低位
+        result[0] = (byte) ((i >> 24) & 0xFF);
+        result[1] = (byte) ((i >> 16) & 0xFF);
+        result[2] = (byte) ((i >> 8) & 0xFF);
+        result[3] = (byte) (i & 0xFF);
+        return result;
+    }
+
 
     private void setAdapter() {
         BuddyDao buddyDao = new BuddyDao(ChatRoomActivity.this);
@@ -337,10 +425,10 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
         chatMessage.fromIP = localIP;
         chatMessage.fromNick = username;
         chatMessage.type = "offline";
-        chatMessage.uuid= UUID.randomUUID().toString();
+        chatMessage.uuid = UUID.randomUUID().toString();
         XStream x = new XStream();
         x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
-        String xml =x.toXML(chatMessage);
+        String xml = x.toXML(chatMessage);
         SocketUtils.sendBroadcastRoom(xml);//发送群聊消息
     }
 }

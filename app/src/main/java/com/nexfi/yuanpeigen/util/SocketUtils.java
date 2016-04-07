@@ -28,7 +28,7 @@ import java.util.TimerTask;
 
 public class SocketUtils {
 
-    static MyApplication app=new MyApplication();
+    static MyApplication app = new MyApplication();
     private static Timer m_PlayTimer;
     private static TimerTask m_PlayTimerTask;
     private static MulticastSocket ms;
@@ -58,7 +58,7 @@ public class SocketUtils {
                 ms.joinGroup(address);
             }
             return ms;
-        }catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -84,18 +84,15 @@ public class SocketUtils {
     }
 
 
-
     public static byte[] intToByteArray(int i) {
         byte[] result = new byte[4];
         //由高位到低位
-        result[0] = (byte)((i >> 24) & 0xFF);
-        result[1] = (byte)((i >> 16) & 0xFF);
-        result[2] = (byte)((i >> 8) & 0xFF);
-        result[3] = (byte)(i & 0xFF);
+        result[0] = (byte) ((i >> 24) & 0xFF);
+        result[1] = (byte) ((i >> 16) & 0xFF);
+        result[2] = (byte) ((i >> 8) & 0xFF);
+        result[3] = (byte) (i & 0xFF);
         return result;
     }
-
-
 
 
     public static void startSendRoomThread(final String msg) {
@@ -112,7 +109,6 @@ public class SocketUtils {
     }
 
 
-
     public static MulticastSocket getMuiSocket() {
          /*创建多播Socket对象*/
         try {
@@ -124,37 +120,40 @@ public class SocketUtils {
                 ms.joinGroup(address);
             }
             return ms;
-        }catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
 
-
-
     /**
      * 聊天室发送多播
+     *
      * @param msg
      */
     public static void sendBroadcastRoom(final String msg) {
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 super.run();
+
                 try {
             /*创建组播对象*/
-                    MulticastSocket ms = getMuiSocket();
+                    MulticastSocket send_mul_socket = getMuiSocket();
                     InetAddress address = InetAddress.getByName("224.0.0.110");
 
-                    byte[] source = new byte[1024];
-                    byte[] data = msg.getBytes();
-                    byte[] size_data = intToByteArray(data.length);
-                    System.arraycopy(size_data, 0, source, 0, 4);
-                    System.arraycopy(data, 0, source, 4, data.length);
-                    DatagramPacket dataPacket = new DatagramPacket(source, 1024, address, 8007);
+//                    Log.e("TAG:", "Send MSG:#################" + msg);
+
+                    byte[] send_room_source = new byte[1024];
+                    byte[] send_room_data = msg.getBytes();
+                    byte[] send_room_size_data = intToByteArray(send_room_data.length);
+                    System.arraycopy(send_room_size_data, 0, send_room_source, 0, send_room_size_data.length);
+                    System.arraycopy(send_room_data, 0, send_room_source, send_room_size_data.length, send_room_data.length);
+                    DatagramPacket dataPacket = new DatagramPacket(send_room_source, 1024, address, 8007);
+//                    Log.e("TAG:", "Ready to send:#################" + send_room_size_data.length + "##" + send_room_data.length);
                     //发送
-                    ms.send(dataPacket);
+                    send_mul_socket.send(dataPacket);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -162,11 +161,10 @@ public class SocketUtils {
         }.start();
     }
 
-
     /**
      * 接收UDP多播
      */
-    public static void initReceMul(final Handler handler,final String localIP) {
+    public static void initReceMul(final Handler handler, final String localIP) {
         new Thread() {
             public void run() {
                 try {
@@ -179,41 +177,44 @@ public class SocketUtils {
                         //通过二进制和数组复制来接收数据：
                         //得到数据大小
                         byte[] source = new byte[1024];
-                        DatagramPacket dp= new DatagramPacket(source,1024,receiveAddress, 8007);
+                        DatagramPacket dp = new DatagramPacket(source, 1024, receiveAddress, 8007);
                         ds.receive(dp);
                         byte[] raw_data = dp.getData();
                         byte[] size_data = new byte[4];
                         System.arraycopy(raw_data, 0, size_data, 0, 4);
-                        int dataLength=byteArrayToInt(size_data);
+                        int dataLength = byteArrayToInt(size_data);
+//                        Log.e("TAG:", "Receive data length:#################" + dataLength);
                         byte[] body_data = new byte[dataLength];
                         System.arraycopy(raw_data, 4, body_data, 0, dataLength);
+//                        Log.e("TAG:", "Receive body length:#################" + body_data.length);
 
                         String xml_content = new String(body_data);
+//                        Log.e("TAG:", "Receive data content:#################" + xml_content);
 
                         XStream x = new XStream();
                         x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
-                        ChatMessage fromXml= (ChatMessage) x.fromXML(xml_content);
-                        if("online".equals(fromXml.type)){
-                                //上线消息,可以计算出在线人数
-                                Message msg = handler.obtainMessage();
-                                msg.obj = fromXml;
-                                msg.what = 2;
-                                handler.sendMessage(msg);
+                        ChatMessage fromXml = (ChatMessage) x.fromXML(xml_content);
+                        if ("online".equals(fromXml.type)) {
+                            //上线消息,可以计算出在线人数
+                            Message msg = handler.obtainMessage();
+                            msg.obj = fromXml;
+                            msg.what = 2;
+                            handler.sendMessage(msg);
 
-                        }else if("chatRoom".equals(fromXml.type)){
-                                //群聊消息
+                        } else if ("chatRoom".equals(fromXml.type)) {
+                            //群聊消息
                             if (!localIP.equals(fromXml.fromIP)) {
-                                    Message msg = handler.obtainMessage();
-                                    msg.obj = fromXml;
-                                    msg.what = 1;
-                                    handler.sendMessage(msg);
-                            }
-                        }else if("offline".equals(fromXml.type)){
-                                //离线消息
                                 Message msg = handler.obtainMessage();
                                 msg.obj = fromXml;
-                                msg.what = 3;
+                                msg.what = 1;
                                 handler.sendMessage(msg);
+                            }
+                        } else if ("offline".equals(fromXml.type)) {
+                            //离线消息
+                            Message msg = handler.obtainMessage();
+                            msg.obj = fromXml;
+                            msg.what = 3;
+                            handler.sendMessage(msg);
                         }
                     }
                 } catch (Exception e) {
@@ -225,22 +226,20 @@ public class SocketUtils {
     }
 
 
-
     public static int byteArrayToInt(byte[] bytes) {
-        int value= 0;
+        int value = 0;
         //由高位到低位
         for (int i = 0; i < 4; i++) {
-            int shift= (4 - 1 - i) * 8;
-            value +=(bytes[i] & 0x000000FF) << shift;//往高位游
+            int shift = (4 - 1 - i) * 8;
+            value += (bytes[i] & 0x000000FF) << shift;//往高位游
         }
         return value;
     }
 
 
-
     //发送UDP单播
     public static void sendUDP(final String destIP, final String msg) {
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 super.run();
@@ -261,12 +260,12 @@ public class SocketUtils {
     /**
      * 接收UDP单播
      */
-    public static void initReUDP(final Handler handler,final String toIp) {
+    public static void initReUDP(final Handler handler, final String toIp) {
 
         new Thread() {
             public void run() {
                 try {
-                    DatagramSocket mDataSocket=null;
+                    DatagramSocket mDataSocket = null;
                     byte[] buf = new byte[1024];
                     DatagramPacket dp = new DatagramPacket(buf, buf.length);
                     if (mDataSocket == null) {
@@ -278,7 +277,7 @@ public class SocketUtils {
                         mDataSocket.receive(dp);
                         XStream x = new XStream();
                         x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
-                        ChatMessage fromXml= (ChatMessage) x.fromXML(new String(dp.getData()));
+                        ChatMessage fromXml = (ChatMessage) x.fromXML(new String(dp.getData()));
                         //TODO
                         if (toIp.equals(fromXml.fromIP)) {
                             Message msg = handler.obtainMessage();
@@ -297,7 +296,7 @@ public class SocketUtils {
 
     public static int getIpAddress(Context context) {
         //获取wifi服务
-        WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         //判断wifi是否开启
         if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
@@ -316,10 +315,11 @@ public class SocketUtils {
 
     /**
      * 获取本机IP
+     *
      * @param context
      * @return
      */
-    public static String getLocalIP(Context context){
+    public static String getLocalIP(Context context) {
         int ipAddress = getIpAddress(context);
         String localIP = intToIp(ipAddress);
         return localIP;
