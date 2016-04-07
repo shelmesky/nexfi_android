@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="200dp"
+    android:layout_height="100dp"
+    android:background="@mipmap/dialog_bg"
+    android:padding="12dp">
+
+
+    <TextView
+        android:id="@+id/tv_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:lineSpacingExtra="2dp"
+        android:text="我现在想和您建立连接，您是否接受"
+        android:textColor="#000"
+        android:textSize="13sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="43dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_cancel_chat"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:background="@drawable/shape_button_cancel"
+            android:text="取消"
+            android:textColor="#FFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btn_ensure_chat"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/shape_button"
+            android:text="保存"
+            android:textColor="#FFF"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="150dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_net"
+    android:orientation="vertical"
+    android:paddingTop="10dp">
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="55dp"
+        android:layout_marginLeft="12dp"
+        android:gravity="center"
+        android:text="请选择网络模式"
+        android:textColor="#C0FF3E"
+        android:textSize="17sp" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#FFF"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_Adhoc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="NexFi"
+            android:textColor="#000"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/textNormol" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#FFF"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_WiFi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="WiFi"
+            android:textColor="#000"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/textNormol" />
+</LinearLayout>

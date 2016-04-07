@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".MainActivity">
+
+
+    <RelativeLayout
+        android:id="@+id/layout_topRoom"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:background="@mipmap/icon_title">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="附近"
+            android:textColor="#FFF"
+            android:textSize="22sp" />
+
+        <ImageView
+            android:id="@+id/iv_add"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:layout_marginRight="20dp"
+            android:src="@mipmap/icon_popmenu" />
+    </RelativeLayout>
+
+
+    <ExpandableListView
+        android:id="@+id/ex_userlist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layout_topRoom"
+        android:layout_marginBottom="60dp"
+        android:childDivider="@color/expandableItem" />
+
+
+</RelativeLayout>

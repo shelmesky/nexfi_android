@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="55dp">
+
+
+        <ImageView
+            android:id="@+id/iv_user"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="25dp"
+            android:src="@mipmap/user_head_female_3" />
+
+        <TextView
+            android:id="@+id/tv_username_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/iv_user"
+            android:text="Nexus"
+            android:textColor="#575757"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:layout_marginRight="20dp"
+            android:drawableLeft="@mipmap/icon_nerbye_focused"
+            android:gravity="center"
+            android:text="0.1km"
+            android:textColor="#575757"
+            android:textSize="15sp" />
+    </RelativeLayout>
+</RelativeLayout>

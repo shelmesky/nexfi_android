@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@mipmap/icon_bottom">
+
+        <RadioGroup
+            android:id="@+id/tab_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_nearby"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:button="@null"
+                android:checked="true"
+                android:drawableTop="@drawable/selector_nearbye"
+                android:gravity="center_horizontal|bottom"
+                android:paddingTop="2dp"
+                android:text="附近"
+                android:textColor="@drawable/selector_nearbye_text" />
+
+            <RadioButton
+                android:id="@+id/rb_settings"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:button="@null"
+                android:checked="true"
+                android:drawableTop="@drawable/selector_settings"
+                android:gravity="center_horizontal|bottom"
+                android:paddingTop="2dp"
+                android:text="设置"
+                android:textColor="@drawable/selector_nearbye_text" />
+        </RadioGroup>
+    </FrameLayout>
+</RelativeLayout>
