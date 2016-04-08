@@ -61,6 +61,7 @@
 
         <TextView
             android:layout_width="wrap_content"
+            android:id="@+id/tv_banben"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ImageViewID"
             android:layout_centerHorizontal="true"
@@ -69,6 +70,15 @@
             android:textColor="#787878"
             android:textSize="20sp"
             android:textStyle="bold" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_below="@+id/tv_banben"
+        android:layout_marginTop="5dp"
+        android:text="2016-4-8-12:34:56"
+        android:textColor="#000"
+        android:textSize="12sp" />
 
         <LinearLayout
             android:id="@+id/update"
