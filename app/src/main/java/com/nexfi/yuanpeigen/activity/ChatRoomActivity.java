@@ -63,6 +63,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
     private String rece_file_path = "";//接收端文件的保存路径
     private List<ChatMessage> mDataArrays = new ArrayList<ChatMessage>();
+    private List<ChatMessage> mTempDataArrays = new ArrayList<ChatMessage>();
 
     private int count = 0;//在线人数
 
@@ -121,7 +122,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
     private void receive(ChatMessage chatMessage) {
         //接收到多播后给予反馈
-//        Log.e("TAG", chatMessage.fromIP + "======================chatMessage.fromIP-------");
+        Log.e("TAG", chatMessage.content + "=============群聊接收=========chatMessage.content -------");
 
         chatMessage.msgType = 1;
         BuddyDao buddyDao = new BuddyDao(ChatRoomActivity.this);
@@ -136,7 +137,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
         ChatMessage user = new ChatMessage();
         user.content = "response";
         user.fromIP = localIP;
-        user.uuid = chatMessage.uuid;//
+        user.uuid = chatMessage.uuid;//添加消息ID
 
         XStream x = new XStream();
         x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
@@ -221,8 +222,11 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
                     while (true) {
                         BuddyDao dao = new BuddyDao(getApplicationContext());
                         List<ChatMessage> mUserList = dao.findRoomByType("online");
-                        int user_list_size = mUserList.size() - 1; //获取当前在线人数
+                        int user_list_size = mUserList.size() - 1; //获取当前在线人数，没有包括自己
                         Log.e("TAG", "got --------------------------------------在线人数===" + user_list_size);
+                        for (ChatMessage mssg:mUserList) {
+                            Log.e("TAG","#mssg.account#===="+mssg.account+"#mssg.nick#===="+mssg.nick);
+                        }
                         int need_send_times = user_list_size; // 重发给N个人
 
                         // 如重复的次数超过指定数量，或者已经接收到足够数量的响应，则退出循环
@@ -231,7 +235,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
                         }
 
                         while (true) {
-                            Log.e("111111111111111111", "start to got response");
+//                            Log.e("111111111111111111", "start to got response");
 
 
                             //二进制接收
@@ -261,29 +265,27 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
                             try {
                                 fromXml = (ChatMessage) x.fromXML(response_xml_content);
                             }catch (Exception e){
-                                Log.e("TAG","---fromXml--time_out================---"+e.toString());
+//                                Log.e("TAG","---fromXml--time_out================---"+e.toString());
                                 // 如果接收到的消息响应数量小于在线人数，则重发消息
                                 if (response_count < user_list_size) {
-                                    Log.e("RESEND:", "444444444444444444444444444response_count：" + response_count + "######user_list_size" + user_list_size);
+//                                    Log.e("RESEND:", "444444444444444444444444444response_count：" + response_count + "######user_list_size" + user_list_size);
                                     SocketUtils.sendBroadcastRoom(message);
                                     sendTimes += 1;
                                     response_count=0;
                                 }
                                 break;
                             }
-                            Log.e("22222222222222222222222", "-----------------content" + fromXml.content + "----from_uuid=====" + fromXml.uuid + "-----origin_uudi" + uuid);
+//                            Log.e("22222222222222222222222", "-----------------content" + fromXml.content + "----from_uuid=====" + fromXml.uuid + "-----origin_uudi" + uuid);
                             //确定响应内容的正确性和唯一
                             if ((uuid.equals(fromXml.uuid)) && fromXml.content.equals("response")) {
                                 response_count += 1;
-                                Log.e("3333333333333333333", "got response");
+//                                Log.e("3333333333333333333", "got response");
                             }
                             need_send_times -= 1;
                             // 如已经重发给N个人，则退出本次重发的动作
                             if (need_send_times == 0) {
                                 break;
                             }
-
-
 
                         }
 
@@ -333,7 +335,16 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
     private void setAdapter() {
         BuddyDao buddyDao = new BuddyDao(ChatRoomActivity.this);
-        mDataArrays = buddyDao.findRoomMsgAll();
+        mTempDataArrays = buddyDao.findRoomMsgAll();
+        for (int i = 0; i <mTempDataArrays.size() ; i++) {
+            if(null!=mTempDataArrays.get(i).content){
+                mDataArrays.add(mTempDataArrays.get(i));
+            }
+        }
+        for (ChatMessage mssg:mDataArrays) {
+            Log.e("TAG","#mssg.nick#"+mssg.nick+"#mssg.fromIP#"+mssg.fromIP+"----#mssg.account#-----"+mssg.account+"---#mssg.toIP#---"+mssg.toIP+"----#mssg.content#----"+mssg.content);
+        }
+        Log.e("TAG",mDataArrays.size()+"------------------------------------所有群聊消息的数量---------------");
         chatRoomMessageAdapater = new ChatRoomMessageAdapater(getApplicationContext(), mDataArrays);
         lv_chatRoom.setAdapter(chatRoomMessageAdapater);
     }
