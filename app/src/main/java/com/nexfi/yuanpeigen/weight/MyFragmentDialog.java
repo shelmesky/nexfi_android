@@ -50,17 +50,18 @@ public class MyFragmentDialog extends DialogFragment {
         tv_adhoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isRoot()) {
-                    isRoot = upgradeRootPermission(getActivity().getPackageCodePath());
-                    if (isRoot) {
-                        Toast.makeText(getActivity(), "NexFi开启成功", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getActivity(), "请重新授权", Toast.LENGTH_SHORT).show();
-                    }
-                    alertDialog.dismiss();
-                } else {
-                    Toast.makeText(getActivity(), "抱歉，您手机尚未Root", Toast.LENGTH_SHORT).show();
-                }
+//                if (isRoot()) {
+//                    isRoot = upgradeRootPermission(getActivity().getPackageCodePath());
+//                    if (isRoot) {
+//                        Toast.makeText(getActivity(), "NexFi开启成功", Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        Toast.makeText(getActivity(), "请重新授权", Toast.LENGTH_SHORT).show();
+//                    }
+//                    alertDialog.dismiss();
+//                } else {
+//                    Toast.makeText(getActivity(), "抱歉，您手机尚未Root", Toast.LENGTH_SHORT).show();
+//                }
+                Toast.makeText(getActivity(), "即将上线，敬请期待", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setView(view);

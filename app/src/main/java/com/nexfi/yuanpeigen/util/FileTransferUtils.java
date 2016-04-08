@@ -3,8 +3,6 @@ package com.nexfi.yuanpeigen.util;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import com.nexfi.yuanpeigen.activity.ChatActivity;
@@ -21,7 +19,6 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,17 +26,18 @@ import java.util.List;
  */
 public class FileTransferUtils {
     public static final int REQUEST_CODE_SELECT_FILE = 1;
-    public static final int REQUEST_CODE_LOCAL=2;
+    public static final int REQUEST_CODE_LOCAL = 2;
     static ChatMessageAdapater mListViewAdapater;
+
     /**
      * 分段发送文件
      *
      * @param path
      */
-    public static void sendFenDuanFile(final String path,final ChatActivity mContext,final String username,final int myAvatar,final String toIp,final String localIP,final int dynamicClientPort,final ListView lv,final List<ChatMessage> mDataArrays) {
+    public static void sendFenDuanFile(final String path, final ChatActivity mContext, final String username, final int myAvatar, final String toIp, final String localIP, final int dynamicClientPort, final ListView lv, final List<ChatMessage> mDataArrays) {
 
 
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 super.run();
@@ -128,6 +126,9 @@ public class FileTransferUtils {
                     fis = new FileInputStream(fileToSend);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
+
+                    //如果出现异常
+
                 }
                 int readsize = 0;
                 //TODO
@@ -198,7 +199,7 @@ public class FileTransferUtils {
 
 
     //开启文件接收端
-    public static void startServer(final int dynamicServerPort,final ChatActivity context,final String toIp,final int avatar,final ListView lv,final List<ChatMessage> mDataArrays,final ChatMessageAdapater mListViewAdapater){
+    public static void startServer(final int dynamicServerPort, final ChatActivity context, final String toIp, final int avatar, final ListView lv, final List<ChatMessage> mDataArrays, final ChatMessageAdapater mListViewAdapater) {
         new Thread() {
             @Override
             public void run() {
@@ -208,7 +209,7 @@ public class FileTransferUtils {
                     serversock = new ServerSocket(dynamicServerPort);
                     while (true) {
                         Socket sock = serversock.accept();            //循环等待客户端连接
-                        new Thread(new TcpFenDuanThread(sock,context,toIp,avatar,lv,mDataArrays,mListViewAdapater)).start(); //当成功连接客户端后开启新线程接收文件
+                        new Thread(new TcpFenDuanThread(sock, context, toIp, avatar, lv, mDataArrays, mListViewAdapater)).start(); //当成功连接客户端后开启新线程接收文件
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

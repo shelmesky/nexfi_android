@@ -56,7 +56,7 @@
             android:layout_toLeftOf="@+id/iv_userhead_send"
             android:background="@drawable/chat_to_img_bg_normal"
             android:focusable="true"
-            android:gravity="left|center"
+            android:gravity="center"
             android:lineSpacingExtra="2dp"
             android:minHeight="35dp"
             android:textColor="#ff000000"
