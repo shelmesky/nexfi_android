@@ -11,6 +11,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,9 +22,11 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.nexfi.yuanpeigen.activity.ChatActivity;
 import com.nexfi.yuanpeigen.activity.ChatRoomActivity;
+import com.nexfi.yuanpeigen.application.MyApplication;
 import com.nexfi.yuanpeigen.bean.ChatMessage;
 import com.nexfi.yuanpeigen.dao.BuddyDao;
 import com.nexfi.yuanpeigen.nexfi.R;
@@ -51,6 +54,19 @@ public class Fragment_nearby extends Fragment {
     private List<List<ChatMessage>> childListNew = new ArrayList<List<ChatMessage>>();
     private List<List<ChatMessage>> childListOnline = new ArrayList<List<ChatMessage>>();
     private List<List<ChatMessage>> childListOffline = new ArrayList<List<ChatMessage>>();
+
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 1) {
+                if (msg.obj != null) {
+                    userList.setAdapter(usrListAdapter);
+                }
+            }
+        }
+    };
 
 
     @Override
@@ -111,12 +127,13 @@ public class Fragment_nearby extends Fragment {
                     startActivity(intent);
                     getActivity().finish();
                 } else {
-                    startActivity(new Intent(getActivity(), ChatActivity.class));
+//                    startActivity(new Intent(getActivity(), ChatActivity.class));
+                    Toast.makeText(Fragment_nearby.this.getActivity(), "即将上线，敬请期待", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             }
         });
-        Log.e("TAG", Fragment_nearby.this.getActivity() + "------------------------------Fragment_nearby.this.getActivity()");
+        Log.e("TAG", Fragment_nearby.this.getActivity() + "-------------onCreateView-----------------Fragment_nearby.this.getActivity()");
         getActivity().getContentResolver().registerContentObserver(
                 Uri.parse("content://www.nexfi.com"), true,
                 new Myobserve(new Handler()));
@@ -147,8 +164,8 @@ public class Fragment_nearby extends Fragment {
                     groupList.add("在线好友");
                     groupList.add("离线好友");
                     groupList.add("附近的人");
-
-                    BuddyDao buddyDao = new BuddyDao(Fragment_nearby.this.getActivity());
+                    Log.e("TAG", Fragment_nearby.this.getActivity()+ "----------------------findAll--------Fragment_nearby.this.getActivity()");
+                    BuddyDao buddyDao = new BuddyDao(MyApplication.getContext());
                     mDataArraysNew = buddyDao.findAll(localIp);//查找所有用户
 
                     for (int index = 0; index < groupList.size(); ++index) {
@@ -156,13 +173,11 @@ public class Fragment_nearby extends Fragment {
                         childListOnline.add(mDataArraysOnline);
                         childListOffline.add(mDataArraysOffline);
                     }
-                    usrListAdapter = new UserList(Fragment_nearby.this.getActivity(), mDataArraysNew, mDataArraysOnline, mDataArraysOffline, groupList, childListNew, childListOnline, childListOffline);
-                    Fragment_nearby.this.getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            userList.setAdapter(usrListAdapter);
-                        }
-                    });
+                    usrListAdapter = new UserList(MyApplication.getContext(), mDataArraysNew, mDataArraysOnline, mDataArraysOffline, groupList, childListNew, childListOnline, childListOffline);
+                    Message msg=handler.obtainMessage();
+                    msg.what=1;
+                    msg.obj=usrListAdapter;
+                    handler.sendMessage(msg);
                 }
             }.start();
             super.onChange(selfChange);

@@ -27,16 +27,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nexfi.yuanpeigen.bean.ChatMessage;
-import com.nexfi.yuanpeigen.dao.BuddyDao;
 import com.nexfi.yuanpeigen.nexfi.R;
 import com.nexfi.yuanpeigen.service.ReceService;
 import com.nexfi.yuanpeigen.util.SocketUtils;
 import com.nexfi.yuanpeigen.util.UserInfo;
 import com.nexfi.yuanpeigen.weight.MyGridViewAdapter;
 import com.thoughtworks.xstream.XStream;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
 /**
@@ -241,20 +237,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     public void finishUsername() {
-        if (!("".equals(nick_name))) {
+        if ((nick_name != null)) {
             ChatMessage user = new ChatMessage();
             user.nick = nick_name;
             user.account = ip;
             user.avatar = avatar;
             user.type = "online";
-//            String xml = user.toXml();
-            //保存自己的信息
-//            BuddyDao dao=new BuddyDao(this);
-//            dao.addP2PMsg(user);
-
             XStream x = new XStream();
             x.alias(ChatMessage.class.getSimpleName(), ChatMessage.class);
-            String xml =x.toXML(user);
+            String xml = x.toXML(user);
             SocketUtils.startSendThread(xml);//发送上线通知
             UserInfo.setConfigurationInformation(LoginActivity.this);
             startActivity(new Intent(LoginActivity.this, MainActivity.class));

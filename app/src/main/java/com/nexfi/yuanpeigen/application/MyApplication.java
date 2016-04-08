@@ -2,9 +2,6 @@ package com.nexfi.yuanpeigen.application;
 
 import android.app.Application;
 import android.content.Context;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.util.Log;
 
 import com.nexfi.yuanpeigen.bean.ChatMessage;
 
@@ -18,9 +15,17 @@ public class MyApplication extends Application {
 
     public boolean DEBUG=true;
     public List<ChatMessage> mDataArrays = new ArrayList<ChatMessage>();
+    public static Context mContext;
+
+
 
     @Override
     public void onCreate() {
         super.onCreate();
+        mContext=getApplicationContext();
+    }
+
+    public static Context getContext() {
+        return mContext;
     }
 }

@@ -251,7 +251,7 @@ public class BuddyDao {
      */
     public List<ChatMessage> findAll(String localIp) {
 //        Log.e("TAG",localIp+"==============localIp-----------------------------------------------dao");
-//        Log.e("TAG",helper.toString()+"--------helper----------------------------------------------------");
+        Log.e("TAG",helper.toString()+"--------helper----------------------------------------------------");
         SQLiteDatabase db = helper.getWritableDatabase();//报空指针
         Log.e("TAG",db+"--------db--------------------------------------------------------------------------db-----");
         Cursor cursor = db.query("messageBase2", null, null, null, null, null, null);

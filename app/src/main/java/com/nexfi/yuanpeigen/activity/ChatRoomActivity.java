@@ -3,8 +3,6 @@ package com.nexfi.yuanpeigen.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,7 +20,6 @@ import android.widget.Toast;
 
 import com.nexfi.yuanpeigen.application.MyApplication;
 import com.nexfi.yuanpeigen.bean.ChatMessage;
-import com.nexfi.yuanpeigen.bean.ChatUser;
 import com.nexfi.yuanpeigen.dao.BuddyDao;
 import com.nexfi.yuanpeigen.nexfi.R;
 import com.nexfi.yuanpeigen.util.FileUtils;
@@ -34,10 +31,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -122,7 +116,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
     private void receive(ChatMessage chatMessage) {
         //接收到多播后给予反馈
-        Log.e("TAG", chatMessage.content + "=============群聊接收=========chatMessage.content -------");
+//        Log.e("TAG", chatMessage.content + "=============群聊接收=========chatMessage.content -------");
 
         chatMessage.msgType = 1;
         BuddyDao buddyDao = new BuddyDao(ChatRoomActivity.this);
