@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private int avatar = R.mipmap.user_head_female_3;
     private ImageView iv_userheadIcon;
     private int[] userHeadFlagIcon = {R.mipmap.user_head_female_1, R.mipmap.user_head_female_2, R.mipmap.user_head_female_3, R.mipmap.user_head_female_4, R.mipmap.user_head_male_1, R.mipmap.user_head_male_2, R.mipmap.user_head_male_3, R.mipmap.user_head_male_4};
-
+    private String model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +72,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Intent intent = new Intent(LoginActivity.this, ReceService.class);
         startService(intent);
         wifiState();
+        model = android.os.Build.MODEL;
+        tv_username.setText(model);
     }
 
     private int getIpAddress() {

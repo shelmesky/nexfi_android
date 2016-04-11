@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="#FFF"
+        android:id="@+id/layout_nexfi"
         android:gravity="center">
 
         <TextView
@@ -40,6 +41,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:id="@+id/layout_wifi"
         android:background="#FFF"
         android:gravity="center">
 
@@ -53,8 +55,21 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <View
+
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/textNormol" />
+        android:layout_height="50dp"
+        android:background="#8B7355"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="取消"
+            android:textColor="#FFF"
+            android:textSize="16sp" />
+    </LinearLayout>
 </LinearLayout>

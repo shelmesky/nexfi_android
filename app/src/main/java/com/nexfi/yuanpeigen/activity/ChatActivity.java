@@ -5,11 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -36,7 +33,6 @@ import com.nexfi.yuanpeigen.application.MyApplication;
 import com.nexfi.yuanpeigen.bean.ChatMessage;
 import com.nexfi.yuanpeigen.dao.BuddyDao;
 import com.nexfi.yuanpeigen.nexfi.R;
-import com.nexfi.yuanpeigen.thread.TcpFenDuanThread;
 import com.nexfi.yuanpeigen.util.FileTransferUtils;
 import com.nexfi.yuanpeigen.util.FileUtils;
 import com.nexfi.yuanpeigen.util.SocketUtils;
@@ -50,15 +46,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -144,7 +135,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 Uri.parse("content://www.file_send"), true,
                 new Myobserve(new Handler()));
 
-//        FileTransferUtils.startServer(dynamicServerPort,this,toIp,avatar,lv,mDataArrays,mListViewAdapater);//开启文件接收端,就是把这行代码放在变化之前
     }
 
 

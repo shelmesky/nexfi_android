@@ -8,9 +8,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.nexfi.yuanpeigen.nexfi.R;
 
@@ -22,7 +22,7 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
     private RelativeLayout back_about;
     private LinearLayout update;
     private Dialog mDialog;
-    private Button mButton_ensure, mButton_cancel;
+    private TextView mButton_ensure, mButton_cancel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +46,8 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
         mDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0x00000000));
         mDialog.show();
         mDialog.getWindow().setContentView(v);
-        mButton_ensure = (Button) v.findViewById(R.id.btn_ensure2);
-        mButton_cancel = (Button) v.findViewById(R.id.btn_cancel2);
+        mButton_ensure = (TextView) v.findViewById(R.id.btn_ensure2);
+        mButton_cancel = (TextView) v.findViewById(R.id.btn_cancel2);
         mButton_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

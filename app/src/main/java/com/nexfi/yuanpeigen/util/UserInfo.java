@@ -51,6 +51,22 @@ public class UserInfo {
         editor.commit();
     }
 
+    public static void setNexFiInformation(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("first_nexfi", context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("isNexFi", true);
+        editor.commit();
+    }
+
+    public static void saveEnabledInformation(Context context, boolean flag) {
+        SharedPreferences preferences = context.getSharedPreferences("EnabledInformation", context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("Enabled", flag);
+        editor.commit();
+    }
+
+
+
     public static void saveUserHeadIcon(Context context, int id) {
         SharedPreferences preferences = context.getSharedPreferences("UserHeadIcon", context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();

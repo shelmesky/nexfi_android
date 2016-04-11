@@ -21,7 +21,7 @@ public class UsernameActivity extends AppCompatActivity implements View.OnClickL
     private TextView finish;
     private EditText et_username;
     private String username;
-
+    private String model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,12 @@ public class UsernameActivity extends AppCompatActivity implements View.OnClickL
         finish = (TextView) findViewById(R.id.tv_finish);
         et_username = (EditText) findViewById(R.id.et_username);
         initUsername();
-        et_username.setText(username);
+        model = android.os.Build.MODEL;
+        if (username != null) {
+            et_username.setText(username);
+        } else {
+            et_username.setText(model);
+        }
         finish.setOnClickListener(this);
     }
 

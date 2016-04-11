@@ -36,7 +36,7 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
     private Fragment_settings fragment_settings;
     private Handler handler, handler_wifiStatus;
     private Handler mHandler;
-    private boolean isExit, isWifiStatus, isDialog = true, isUserInfo, isAbout, isDialogRoom, isSettings = true;
+    private boolean isExit, isWifiStatus, isDialog = true, isUserInfo, isAbout, isDialogRoom, isSettingsAdhoc, isAdhoc, isSettings = true;
     private FragmentManager mFragmentManager;
     private RadioGroup myTabRg;
     private RadioButton rb_nearby, rb_settings;
@@ -51,14 +51,16 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
         Intent intent = getIntent();
         isUserInfo = intent.getBooleanExtra("isUserInfo", true);
         isAbout = intent.getBooleanExtra("isAbout", true);
-        if (isUserInfo) {
+        isAdhoc = intent.getBooleanExtra("isAdhoc", true);
+        isSettingsAdhoc = intent.getBooleanExtra("isSettingsAdhoc", true);
+        if (isUserInfo && isSettingsAdhoc) {
             initNearByFragment();
         } else {
             initSettingsFragment();
         }
         isDialog = intent.getBooleanExtra("Dialog", true);
         isDialogRoom = intent.getBooleanExtra("DialogRoom", true);
-        if (isDialog && isUserInfo && isAbout && isDialogRoom && isWifiStatus) {
+        if (isDialog && isUserInfo && isAbout && isDialogRoom && isWifiStatus && isAdhoc) {
             initDialog();
             handler = new Handler();
             handler.postDelayed(this, 1000);
@@ -71,7 +73,7 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
             }
         };
         isSettings = intent.getBooleanExtra("isSettings", true);
-        if (!isSettings) {
+        if (!isSettings || !isSettingsAdhoc) {
             rb_settings.setChecked(true);
         } else {
             rb_nearby.setChecked(true);
